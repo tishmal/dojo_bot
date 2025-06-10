@@ -5,9 +5,15 @@ import (
 	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_TOKEN"))
 	if err != nil {
 		log.Panic(err)
@@ -25,7 +31,7 @@ func main() {
 			continue
 		}
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Привет, "+update.Message.From.UserName+"!")
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Приветствую тебя странник, а твой ник: "+update.Message.From.UserName+"!")
 		bot.Send(msg)
 	}
 }
