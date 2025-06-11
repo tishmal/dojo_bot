@@ -1,0 +1,5 @@
+# Объём данных
+docker exec -it mongo mongosh telegram_bot --eval "db.stats()"
+
+# Все документы
+docker exec -it mongo mongosh telegram_bot --eval "db.users.find().pretty()"
