@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"dojo_bot/model"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -22,6 +23,12 @@ func ConnectMongoDB(uri string) (*mongo.Client, error) {
 }
 
 func SaveUser(db *mongo.Database, user model.User) error {
-	_, err := db.Collection("users").InsertOne(context.Background(), user)
-	return err
+	res, err := db.Collection("users").InsertOne(context.Background(), user)
+	if err != nil {
+		log.Printf("Ошибка сохранения: %v", err)
+		return err
+	}
+
+	log.Printf("Пользователь с ID: %v сохранён", res.InsertedID)
+	return nil
 }
