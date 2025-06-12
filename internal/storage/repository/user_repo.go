@@ -8,20 +8,22 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type UserRepository interface {
-	SaveUser(db *mongo.Database, user model.User) error
+type UserRepoInterface interface {
+	SaveUser(user model.User) error
+	//GetUser(id int) (*User, error)
 }
 
 type UserRepo struct {
 	db *mongo.Database
 }
 
-func NewMongoDB(db *mongo.Database) UserRepository {
+func NewMongoDB(db *mongo.Database) UserRepoInterface {
 	return &UserRepo{db: db}
 }
 
-func (r *UserRepo) SaveUser(db *mongo.Database, user model.User) error {
-	res, err := db.Collection("users").InsertOne(context.Background(), user)
+// добавить индексы к полям и проверку на существование пользователя в бд, также редис или другой кэш
+func (r *UserRepo) SaveUser(user model.User) error {
+	res, err := r.db.Collection("users").InsertOne(context.Background(), user)
 	if err != nil {
 		log.Printf("Ошибка сохранения: %v", err)
 		return err

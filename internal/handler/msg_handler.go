@@ -1,34 +1,41 @@
 package handler
 
 import (
-	"dojo_bot/internal/storage"
-	"dojo_bot/model"
+	"dojo_bot/internal/svc"
 	"log"
-	"strconv"
-	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func Worker(id int, jobs <-chan tgbotapi.Update, bot *tgbotapi.BotAPI, db *mongo.Database) {
-	// Обработка сообщения
-	for update := range jobs {
-		// сохраняем пользователя в Mongo
-		user := model.User{
-			Username: update.Message.From.UserName,
-			ChatID:   update.Message.Chat.ID,
-			JoinedAt: time.Now().Format(time.RFC3339),
-		}
+type UserHandlerInterface interface {
+	HandleUpdate(update tgbotapi.Update) error
+}
 
-		if err := storage.SaveUser(db, user); err != nil {
-			log.Println("Ошибка сохранения:", err)
-		}
+type UserHandler struct {
+	userSvc svc.UserSvcInterface
+	bot     *tgbotapi.BotAPI
+}
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Салам! Это сообщение обработано воркером "+strconv.Itoa(id))
-		bot.Send(msg)
-
-		// msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Приветствую тебя странник, а твой ник: "+update.Message.From.UserName+"!")
-		// bot.Send(msg)
+func NewUserHandler(userSvc *svc.UserService, bot *tgbotapi.BotAPI) UserHandlerInterface {
+	return &UserHandler{
+		userSvc: userSvc,
+		bot:     bot,
 	}
+}
+
+// добавить контекст
+// обработка сообщения
+func (h *UserHandler) HandleUpdate(update tgbotapi.Update) error {
+	if update.Message == nil {
+		return nil
+	}
+
+	if err := h.userSvc.ProcessUser(update.Message.From.UserName, update.Message.Chat.ID); err != nil {
+		log.Printf("Ошибка обработки пользователя: %v", err)
+		return err
+	}
+
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Привет, "+update.Message.From.UserName+"!")
+	_, err := h.bot.Send(msg)
+	return err
 }

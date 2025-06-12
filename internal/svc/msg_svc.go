@@ -1,28 +1,34 @@
 package svc
 
 import (
-	"dojo_bot/internal/storage"
+	"dojo_bot/internal/storage/repository"
 	"dojo_bot/model"
 	"fmt"
 	"time"
 )
 
-
-
-type UserService struct {
-	repo storage.UserRepository
+type UserSvcInterface interface {
+	ProcessUser(username string, chatID int64) error
 }
 
-func (s *UserService) HandleMessage(msg *tgbotapi.Message) (string, error) {
+type UserService struct {
+	repo repository.UserRepoInterface
+}
+
+func NewUserSvc(userRepo *repository.UserRepo) UserSvcInterface {
+	return &UserService{repo: userRepo}
+}
+
+func (s *UserService) ProcessUser(username string, chatID int64) error {
 	user := model.User{
-		Username: msg.From.UserName,
-		ChatID:   msg.Chat.ID,
+		Username: username,
+		ChatID:   chatID,
 		JoinedAt: time.Now().Format(time.RFC3339),
 	}
 
 	if err := s.repo.SaveUser(user); err != nil {
-		return "", fmt.Errorf("не удалось сохранить пользователя: %w", err)
+		return fmt.Errorf("не удалось сохранить пользователя: %w", err)
 	}
 
-	return "Салам! Твой ник: " + user.Username, nil
+	return nil
 }
