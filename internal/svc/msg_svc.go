@@ -15,7 +15,7 @@ type UserService struct {
 	repo repository.UserRepoInterface
 }
 
-func NewUserSvc(userRepo *repository.UserRepo) UserSvcInterface {
+func NewUserSvc(userRepo repository.UserRepoInterface) UserSvcInterface {
 	return &UserService{repo: userRepo}
 }
 

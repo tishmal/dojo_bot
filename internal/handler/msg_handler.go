@@ -11,13 +11,13 @@ type UserHandlerInterface interface {
 	HandleUpdate(update tgbotapi.Update) error
 }
 
-type UserHandler struct {
+type userHandler struct {
 	userSvc svc.UserSvcInterface
 	bot     *tgbotapi.BotAPI
 }
 
-func NewUserHandler(userSvc *svc.UserService, bot *tgbotapi.BotAPI) UserHandlerInterface {
-	return &UserHandler{
+func NewUserHandler(userSvc svc.UserSvcInterface, bot *tgbotapi.BotAPI) UserHandlerInterface {
+	return &userHandler{
 		userSvc: userSvc,
 		bot:     bot,
 	}
@@ -25,7 +25,7 @@ func NewUserHandler(userSvc *svc.UserService, bot *tgbotapi.BotAPI) UserHandlerI
 
 // добавить контекст
 // обработка сообщения
-func (h *UserHandler) HandleUpdate(update tgbotapi.Update) error {
+func (h *userHandler) HandleUpdate(update tgbotapi.Update) error {
 	if update.Message == nil {
 		return nil
 	}
