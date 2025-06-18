@@ -32,3 +32,8 @@ func (r *UserRepo) SaveUser(user model.User) error {
 	log.Printf("Пользователь с ID: %v сохранён", res.InsertedID)
 	return nil
 }
+
+// func (r *UserRepo) GetUserByID(ctx context.Context, userID int64) (*User, error) {
+// 	// Запрос к PostgreSQL/MongoDB
+// 	return &model.User{ID: userID, HasAccess: true}, nil
+// }

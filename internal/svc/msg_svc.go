@@ -5,10 +5,12 @@ import (
 	"dojo_bot/model"
 	"fmt"
 	"time"
+
+	"github.com/mymmrac/telego"
 )
 
 type UserSvcInterface interface {
-	ProcessUser(username string, chatID int64) error
+	ProcessUser(username string, chatID telego.ChatID) error
 }
 
 type UserService struct {
@@ -19,7 +21,7 @@ func NewUserSvc(userRepo repository.UserRepoInterface) UserSvcInterface {
 	return &UserService{repo: userRepo}
 }
 
-func (s *UserService) ProcessUser(username string, chatID int64) error {
+func (s *UserService) ProcessUser(username string, chatID telego.ChatID) error {
 	user := model.User{
 		Username: username,
 		ChatID:   chatID,
