@@ -6,6 +6,7 @@ import (
 	"dojo_bot/internal/storage/db"
 	"dojo_bot/internal/storage/repository"
 	"dojo_bot/internal/svc"
+	"dojo_bot/pkg"
 	"io"
 	"log"
 	"net/http"
@@ -46,6 +47,13 @@ func main() {
 	bot, err := telego.NewBot(botToken, telego.WithDefaultDebugLogger())
 	if err != nil {
 		log.Fatalf("Bot creation error: %v", err)
+	}
+
+	// Устанавливаем кнопку в списке чатов
+	if err := pkg.SetMenuButton(ctx, bot); err != nil {
+		log.Printf("Ошибка установки кнопки: %v", err)
+	} else {
+		log.Println("Кнопка в списке чатов успешно установлена!")
 	}
 
 	// Подключение к MongoDB

@@ -41,6 +41,8 @@
 git clone https://github.com/yourusername/telegram-bot-go.git
 cd telegram-bot-go
 
+docker compose up
+
 # Установить зависимости
 go mod download
 

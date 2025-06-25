@@ -10,7 +10,7 @@ import (
 )
 
 type UserSvcInterface interface {
-	ProcessUser(username string, chatID telego.ChatID) error
+	ProcessUser(user_name string, first_name string, chatID telego.ChatID) error
 }
 
 type UserService struct {
@@ -21,11 +21,20 @@ func NewUserSvc(userRepo repository.UserRepoInterface) UserSvcInterface {
 	return &UserService{repo: userRepo}
 }
 
-func (s *UserService) ProcessUser(username string, chatID telego.ChatID) error {
+func (s *UserService) ProcessUser(user_name string, first_name string, chatID telego.ChatID) error {
 	user := model.User{
-		Username: username,
-		ChatID:   chatID,
-		JoinedAt: time.Now().Format(time.RFC3339),
+		TelegramID: chatID.ID,
+		Profile: struct {
+			Username  string    `bson:"username"`
+			FirstName string    `bson:"first_name"`
+			LastSeen  time.Time `bson:"last_seen"`
+		}{
+			Username:  user_name,
+			FirstName: first_name,
+			LastSeen:  time.Now(),
+		},
+		Settings:  make(map[string]interface{}), // пустые настройки
+		CreatedAt: time.Now(),
 	}
 
 	if err := s.repo.SaveUser(user); err != nil {

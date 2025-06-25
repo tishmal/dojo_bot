@@ -41,7 +41,7 @@ func (h *userHandler) SetupMenuButton(ctx context.Context) error {
 		Type: telego.ButtonTypeWebApp,
 		Text: "🚀 Launch Dojo",
 		WebApp: telego.WebAppInfo{
-			URL: "https://your-mini-app.com",
+			URL: "https://tishmal.github.io/dojo-app/",
 		},
 	}
 
@@ -86,15 +86,16 @@ func (h *userHandler) handleWebAppData(update telego.Update) error {
 // Обработка команды /start
 func (h *userHandler) handleStartCommand(update telego.Update) error {
 	username := update.Message.From.Username
+	firstname := update.Message.From.FirstName
 	chatID := update.Message.Chat.ChatID()
 
-	if err := h.userSvc.ProcessUser(username, chatID); err != nil {
+	if err := h.userSvc.ProcessUser(username, firstname, chatID); err != nil {
 		log.Printf("Ошибка обработки пользователя: %v", err)
 		return err
 	}
 
 	webAppBtn := telegoutil.KeyboardButton("🎮 Открыть игру").
-		WithWebApp(&telego.WebAppInfo{URL: "https://your-mini-app.com"})
+		WithWebApp(&telego.WebAppInfo{URL: "https://tishmal.github.io/dojo-app/"})
 
 	regularBtn := telegoutil.KeyboardButton("ℹ️ Информация")
 	keyboard := telegoutil.Keyboard(
