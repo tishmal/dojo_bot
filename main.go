@@ -16,22 +16,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"github.com/mymmrac/telego"
 )
 
 func main() {
-	// Загрузка .env файла
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: .env file not loaded: %v", err)
-	}
-
-	// Инициализация бота
-	botToken := os.Getenv("TELEGRAM_TOKEN")
-	if botToken == "" {
-		log.Fatal("TELEGRAM_TOKEN is required")
-	}
-
+	// config
 	// Контекст с graceful shutdown
 	ctx, cancel := signal.NotifyContext(
 		context.Background(),

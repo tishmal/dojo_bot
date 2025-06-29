@@ -10,8 +10,8 @@ import (
 )
 
 type UserHandlerInterface interface {
-	HandleUpdate(update telego.Update) error
 	SetupMenuButton(ctx context.Context) error
+	HandleUpdate(update telego.Update) error
 }
 
 type userHandler struct {
@@ -39,7 +39,7 @@ func NewUserHandler(ctx context.Context, userSvc svc.UserSvcInterface, bot *tele
 func (h *userHandler) SetupMenuButton(ctx context.Context) error {
 	menuButton := &telego.MenuButtonWebApp{
 		Type: telego.ButtonTypeWebApp,
-		Text: "🚀 Launch Dojo",
+		Text: "Play",
 		WebApp: telego.WebAppInfo{
 			URL: "https://tishmal.github.io/dojo-app/",
 		},
@@ -110,7 +110,7 @@ func (h *userHandler) handleStartCommand(update telego.Update) error {
 			"✨ Теперь у вас есть доступ к мини-приложению через:\n"+
 			"• Кнопку меню (рядом с полем ввода)\n"+
 			"• Кнопку ниже\n\n"+
-			"Нажмите любую из них, чтобы начать играть!",
+			"Нажмите любую из них, чтобы начать!",
 	).WithReplyMarkup(keyboard)
 
 	_, err := h.bot.SendMessage(h.ctx, msg)
@@ -119,7 +119,7 @@ func (h *userHandler) handleStartCommand(update telego.Update) error {
 
 // Обработка обычных сообщений
 func (h *userHandler) handleRegularMessage(update telego.Update) error {
-	chatID := update.Message.Chat.ChatID()
+	chatID := update.Message.Chat.ID
 	var response string
 
 	switch update.Message.Text {
@@ -128,11 +128,33 @@ func (h *userHandler) handleRegularMessage(update telego.Update) error {
 			"🎮 Используйте кнопку меню или кнопку 'Открыть игру' для запуска приложения.\n" +
 			"💡 Кнопка меню всегда доступна рядом с полем ввода сообщения."
 	default:
-		response = "Привет, " + update.Message.From.Username + "! 👋\n\n" +
-			"Используйте кнопку меню для запуска приложения! 🚀"
+		response = "Приветствую " + update.Message.From.Username + " 👋\n\n"
 	}
 
-	msg := telegoutil.Message(chatID, response)
-	_, err := h.bot.SendMessage(h.ctx, msg)
+	inlineKeyboard := &telego.InlineKeyboardMarkup{
+		InlineKeyboard: [][]telego.InlineKeyboardButton{
+			{
+				{
+					Text: "🔗 Перейти в канал",
+					URL:  "https://t.me/podellniki",
+				},
+			},
+			{
+				{
+					Text: "🚀 Открыть игру",
+					WebApp: &telego.WebAppInfo{
+						URL: "https://tishmal.github.io/dojo-app/",
+					},
+				},
+			},
+		},
+	}
+
+	msg := telego.SendMessageParams{
+		ChatID:      telego.ChatID{ID: chatID},
+		Text:        response,
+		ReplyMarkup: inlineKeyboard,
+	}
+	_, err := h.bot.SendMessage(h.ctx, &msg)
 	return err
 }
