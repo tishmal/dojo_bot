@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"dojo_bot/internal/config"
 	"dojo_bot/internal/handler"
 	"dojo_bot/internal/storage/db"
 	"dojo_bot/internal/storage/repository"
@@ -20,7 +21,11 @@ import (
 )
 
 func main() {
-	// config
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatalf("Load configuration failed", "error", err)
+	}
+
 	// Контекст с graceful shutdown
 	ctx, cancel := signal.NotifyContext(
 		context.Background(),
@@ -33,7 +38,7 @@ func main() {
 	router := gin.Default()
 
 	// Инициализация бота
-	bot, err := telego.NewBot(botToken, telego.WithDefaultDebugLogger())
+	bot, err := telego.NewBot(cfg.Tgtoken, telego.WithDefaultDebugLogger())
 	if err != nil {
 		log.Fatalf("Bot creation error: %v", err)
 	}
@@ -46,7 +51,7 @@ func main() {
 	}
 
 	// Подключение к MongoDB
-	mongoClient, err := db.ConnectMongoDB(ctx, os.Getenv("MONGODB_URI"))
+	mongoClient, err := db.ConnectMongoDB(ctx, cfg.MongoURI)
 	if err != nil {
 		log.Fatalf("MongoDB connection error: %v", err)
 	}
@@ -55,7 +60,7 @@ func main() {
 	// Инициализация сервисов
 	userRepo := repository.NewUserRepo(mongoClient.Database("telegram_bot"))
 	userSvc := svc.NewUserSvc(userRepo)
-	userHandler := handler.NewUserHandler(ctx, userSvc, bot)
+	userHandler := handler.NewUserHandler(ctx, userSvc, bot, cfg.AppURL, cfg.ChanURL)
 
 	// Настройка вебхука
 	if webhookURL := os.Getenv("WEBHOOK_URL"); webhookURL != "" {

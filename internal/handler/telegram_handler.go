@@ -18,13 +18,17 @@ type userHandler struct {
 	ctx     context.Context
 	userSvc svc.UserSvcInterface
 	bot     *telego.Bot
+	appURL  string
+	chanURL string
 }
 
-func NewUserHandler(ctx context.Context, userSvc svc.UserSvcInterface, bot *telego.Bot) UserHandlerInterface {
+func NewUserHandler(ctx context.Context, userSvc svc.UserSvcInterface, bot *telego.Bot, appURL, chanURL string) UserHandlerInterface {
 	handler := &userHandler{
 		ctx:     ctx,
 		userSvc: userSvc,
 		bot:     bot,
+		appURL:  appURL,
+		chanURL: chanURL,
 	}
 
 	// Устанавливаем menu button при создании хендлера
@@ -41,7 +45,7 @@ func (h *userHandler) SetupMenuButton(ctx context.Context) error {
 		Type: telego.ButtonTypeWebApp,
 		Text: "Play",
 		WebApp: telego.WebAppInfo{
-			URL: "https://tishmal.github.io/dojo-app/",
+			URL: h.appURL,
 		},
 	}
 
@@ -95,7 +99,7 @@ func (h *userHandler) handleStartCommand(update telego.Update) error {
 	}
 
 	webAppBtn := telegoutil.KeyboardButton("🎮 Открыть игру").
-		WithWebApp(&telego.WebAppInfo{URL: "https://tishmal.github.io/dojo-app/"})
+		WithWebApp(&telego.WebAppInfo{URL: h.appURL})
 
 	regularBtn := telegoutil.KeyboardButton("ℹ️ Информация")
 	keyboard := telegoutil.Keyboard(
@@ -136,14 +140,14 @@ func (h *userHandler) handleRegularMessage(update telego.Update) error {
 			{
 				{
 					Text: "🔗 Перейти в канал",
-					URL:  "https://t.me/podellniki",
+					URL:  h.chanURL,
 				},
 			},
 			{
 				{
 					Text: "🚀 Открыть игру",
 					WebApp: &telego.WebAppInfo{
-						URL: "https://tishmal.github.io/dojo-app/",
+						URL: h.appURL,
 					},
 				},
 			},
