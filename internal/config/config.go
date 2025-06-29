@@ -2,10 +2,7 @@ package config
 
 import (
 	"fmt"
-	"log"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -16,10 +13,6 @@ type Config struct {
 }
 
 func NewConfig() (*Config, error) {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Warning: .env file not loaded: %v", err)
-	}
-
 	env := map[string]string{
 		"TELEGRAM_TOKEN": os.Getenv("TELEGRAM_TOKEN"),
 		"MONGODB_URI":    os.Getenv("MONGODB_URI"),

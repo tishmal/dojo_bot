@@ -18,6 +18,8 @@ services:
 
   bot:
     build: .
+    env_file:
+      - .env
     container_name: bot
     depends_on:
       mongo:
